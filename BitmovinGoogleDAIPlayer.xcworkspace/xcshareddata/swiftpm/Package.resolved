@@ -1,0 +1,33 @@
+{
+  "originHash" : "6067ff836d420279d224f54bcde0b0a068c4e96a81a7003f8aae54588be68711",
+  "pins" : [
+    {
+      "identity" : "player-ios-core",
+      "kind" : "remoteSourceControl",
+      "location" : "https://github.com/bitmovin/player-ios-core.git",
+      "state" : {
+        "revision" : "74ec7c86f37d0a536a27718e54d398a36a20b3e0",
+        "version" : "3.116.1"
+      }
+    },
+    {
+      "identity" : "swift-package-manager-google-interactive-media-ads-ios",
+      "kind" : "remoteSourceControl",
+      "location" : "https://github.com/googleads/swift-package-manager-google-interactive-media-ads-ios",
+      "state" : {
+        "revision" : "3ab3dee61922cf4e024b9086f324f0737bc73339",
+        "version" : "3.31.0"
+      }
+    },
+    {
+      "identity" : "swift-package-manager-google-interactive-media-ads-tvos",
+      "kind" : "remoteSourceControl",
+      "location" : "https://github.com/googleads/swift-package-manager-google-interactive-media-ads-tvos",
+      "state" : {
+        "revision" : "fe5a302eb17388077258b02e2a18e88f63100625",
+        "version" : "4.16.0"
+      }
+    }
+  ],
+  "version" : 3
+}
