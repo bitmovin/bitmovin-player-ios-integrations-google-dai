@@ -1,0 +1,18 @@
+name: Lint
+
+on:
+  pull_request:
+  push:
+    branches:
+      - main
+
+jobs:
+  swiftformat:
+    name: SwiftFormat
+    runs-on: macos-latest
+
+    steps:
+      - uses: actions/checkout@v7
+
+      - name: Lint Swift formatting
+        run: swiftformat --lint --swiftversion 5.10 --disable trailingCommas .
