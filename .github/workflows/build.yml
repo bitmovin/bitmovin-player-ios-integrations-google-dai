@@ -1,0 +1,34 @@
+name: Build
+
+on:
+  pull_request:
+  push:
+    branches:
+      - main
+
+jobs:
+  build:
+    name: Build ${{ matrix.name }}
+    runs-on: macos-latest
+
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - name: iOS
+            scheme: BitmovinGoogleDAIPlayerExample
+            platform: iOS Simulator
+          - name: tvOS
+            scheme: BitmovinGoogleDAIPlayerExample
+            platform: tvOS Simulator
+
+    steps:
+      - uses: actions/checkout@v7
+
+      - name: Build
+        run: |
+          xcodebuild build \
+            -workspace BitmovinGoogleDAIPlayer.xcworkspace \
+            -scheme "${{ matrix.scheme }}" \
+            -destination "generic/platform=${{ matrix.platform }}" \
+            CODE_SIGNING_ALLOWED=NO
