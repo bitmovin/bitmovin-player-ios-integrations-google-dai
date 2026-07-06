@@ -39,7 +39,7 @@ let package = Package(
                     condition: .when(platforms: [.tvOS])
                 )
             ],
-            path: "BitmovinGoogleDAIPlayer"
+            path: "BitmovinGoogleDAIPlayer/Sources/BitmovinGoogleDAIPlayer"
         ),
     ]
 )
