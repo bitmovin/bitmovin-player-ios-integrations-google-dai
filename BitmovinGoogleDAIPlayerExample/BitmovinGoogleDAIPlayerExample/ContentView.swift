@@ -1,5 +1,5 @@
 import BitmovinGoogleDAIPlayer
-import BitmovinPlayerCore
+import BitmovinPlayer
 import Foundation
 import SwiftUI
 
