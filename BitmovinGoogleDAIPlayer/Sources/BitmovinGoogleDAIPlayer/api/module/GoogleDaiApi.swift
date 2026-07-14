@@ -2,7 +2,7 @@ import Foundation
 
 /// Provides access to Google DAI-specific APIs for a Bitmovin Player instance.
 @MainActor
-public protocol GoogleDaiApi: AnyObject, Sendable {
+public protocol GoogleDaiApi: AnyObject {
     /// Loads the Google DAI integration.
     func load(source: GoogleDaiSource)
     func destroy()
