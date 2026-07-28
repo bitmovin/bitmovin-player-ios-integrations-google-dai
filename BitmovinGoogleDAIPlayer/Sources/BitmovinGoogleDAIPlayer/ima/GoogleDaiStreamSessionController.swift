@@ -20,6 +20,7 @@ final class GoogleDaiStreamSessionController: NSObject {
 
     private let imaAdsLoader = IMAAdsLoader()
     private let videoDisplayAdapter: GoogleDaiVideoDisplayAdapter
+    private let adEventAdapter: GoogleDaiAdEventAdapter
 
     private var adDisplayContainer: IMAAdDisplayContainer?
     private var streamManager: IMAStreamManager?
@@ -32,12 +33,14 @@ final class GoogleDaiStreamSessionController: NSObject {
 
     init(
         playbackControlDelegate: any GoogleDaiPlaybackControlDelegate,
-        playbackInfoDataSource: any GoogleDaiPlaybackInfoDataSource
+        playbackInfoDataSource: any GoogleDaiPlaybackInfoDataSource,
+        adEventDelegate: any GoogleDaiAdEventDelegate
     ) {
         videoDisplayAdapter = GoogleDaiVideoDisplayAdapter(
             playbackControlDelegate: playbackControlDelegate,
             playbackInfoDataSource: playbackInfoDataSource
         )
+        adEventAdapter = GoogleDaiAdEventAdapter(delegate: adEventDelegate)
 
         super.init()
 
@@ -150,6 +153,7 @@ extension GoogleDaiStreamSessionController: @preconcurrency IMAAdsLoaderDelegate
         }
 
         self.streamManager = streamManager
+        streamManager.delegate = adEventAdapter
         streamManager.initialize(with: nil)
     }
 
