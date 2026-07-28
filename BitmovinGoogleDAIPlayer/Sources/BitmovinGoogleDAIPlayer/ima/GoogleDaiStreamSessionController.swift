@@ -12,10 +12,18 @@ final class GoogleDaiStreamSessionController: NSObject {
     }
 
     /// Describes invalid states encountered while establishing an IMA stream session.
-    enum Error: Swift.Error {
-        case loadAlreadyInProgress
+    enum Error: Swift.Error, LocalizedError {
         case missingAdDisplayContainer
         case missingStreamManager
+
+        var errorDescription: String? {
+            switch self {
+            case .missingAdDisplayContainer:
+                "Google DAI cannot load a stream without an advertising presentation context."
+            case .missingStreamManager:
+                "Google IMA did not provide a stream manager for the Google DAI stream request."
+            }
+        }
     }
 
     private let imaAdsLoader = IMAAdsLoader()
@@ -60,15 +68,12 @@ final class GoogleDaiStreamSessionController: NSObject {
     }
 
     func load(source: GoogleDaiSource) async throws -> URL {
-        guard loadContinuation == nil else {
-            throw Error.loadAlreadyInProgress
-        }
+        cancelLoading()
 
         guard let adDisplayContainer else {
             throw Error.missingAdDisplayContainer
         }
 
-        destroyStreamManager()
         let loadContext = LoadContext()
         self.loadContext = loadContext
 
@@ -90,9 +95,13 @@ final class GoogleDaiStreamSessionController: NSObject {
         }
     }
 
-    func destroy() {
+    func cancelLoading() {
         finishLoading(with: .failure(CancellationError()))
         destroyStreamManager()
+    }
+
+    func destroy() {
+        cancelLoading()
         adDisplayContainer = nil
     }
 
@@ -129,7 +138,7 @@ final class GoogleDaiStreamSessionController: NSObject {
         guard loadContext?.identifier == identifier else {
             return
         }
-        destroy()
+        cancelLoading()
     }
 
     private func destroyStreamManager() {

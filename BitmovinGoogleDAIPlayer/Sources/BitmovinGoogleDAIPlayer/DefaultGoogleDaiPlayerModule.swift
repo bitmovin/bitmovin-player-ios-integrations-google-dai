@@ -44,10 +44,7 @@ extension DefaultGoogleDaiPlayerModule: GoogleDaiApi {
             return
         }
 
-        loadTask?.cancel()
-        loadTask = nil
-        streamSessionController.destroy()
-        hasReportedPlaybackStart = false
+        cancelLoading()
 
         streamSessionController.register(
             adContainer: presentationContext.adContainer,
@@ -60,6 +57,7 @@ extension DefaultGoogleDaiPlayerModule: GoogleDaiApi {
             }
 
             do {
+                try Task.checkCancellation()
                 let streamUrl = try await streamSessionController.load(source: source)
                 try Task.checkCancellation()
                 player.load(sourceConfig: SourceConfig(url: streamUrl, type: .hls))
@@ -72,10 +70,8 @@ extension DefaultGoogleDaiPlayerModule: GoogleDaiApi {
     }
 
     func destroy() {
-        loadTask?.cancel()
-        loadTask = nil
+        cancelLoading()
         streamSessionController.destroy()
-        hasReportedPlaybackStart = false
     }
 }
 
@@ -131,6 +127,12 @@ extension DefaultGoogleDaiPlayerModule: GoogleDaiPlaybackInfoDataSource {
 }
 
 private extension DefaultGoogleDaiPlayerModule {
+    func cancelLoading() {
+        loadTask?.cancel()
+        loadTask = nil
+        hasReportedPlaybackStart = false
+    }
+
     func subscribeToPlayerEvents(_ player: Player) {
         player.events.on(ReadyEvent.self)
             .sink { [weak self] _ in
