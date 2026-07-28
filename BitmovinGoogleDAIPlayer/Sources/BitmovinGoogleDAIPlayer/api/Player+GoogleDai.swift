@@ -4,8 +4,10 @@ import Foundation
 public extension Player {
     /// Allows access to the Google DAI APIs.
     ///
-    /// Accessing this property logs an informational message when this player was not created using
-    /// ``PlayerFactory/createGoogleDaiPlayer(playerConfig:analytics:)``. Calls to the returned API have no effect.
+    /// - Note: Accessing this namespace no a player instance where Google DAI was not enabled will have no effect and
+    /// logs a warning. Use ``PlayerFactory/createGoogleDaiPlayer(playerConfig:analytics:)`` to create a Player
+    /// instance with Google DAI enabled. To dynamically check whether Google DAI is enabled
+    /// use ``GoogleDaiApi/isEnabled``.
     @MainActor
     var googleDai: GoogleDaiApi {
         guard let googleDai = _modules._module(DefaultGoogleDaiPlayerModule.self) else {
