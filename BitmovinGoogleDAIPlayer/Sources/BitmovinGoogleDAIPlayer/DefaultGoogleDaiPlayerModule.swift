@@ -25,6 +25,10 @@ final class DefaultGoogleDaiPlayerModule: _PlayerModule {
 }
 
 extension DefaultGoogleDaiPlayerModule: GoogleDaiApi {
+    var isEnabled: Bool {
+        true
+    }
+
     func load(source: GoogleDaiSource) {
         guard let player, let presentationContext = player.ads.presentationContext else {
             return
