@@ -30,7 +30,17 @@ extension DefaultGoogleDaiPlayerModule: GoogleDaiApi {
     }
 
     func load(source: GoogleDaiSource) {
-        guard let player, let presentationContext = player.ads.presentationContext else {
+        guard let player else {
+            Logger.error("Google DAI cannot load because the Player is no longer available.")
+            return
+        }
+        guard let presentationContext = player.ads.presentationContext else {
+            Logger.error(
+                """
+                Google DAI cannot load because the Player has no advertising presentation context. \
+                Attach the Player to a PlayerView before calling 'player.googleDai.load(source:)'.
+                """
+            )
             return
         }
 
