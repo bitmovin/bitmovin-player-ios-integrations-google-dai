@@ -11,6 +11,10 @@ final class DefaultGoogleDaiPlayerModule: _PlayerModule {
 }
 
 extension DefaultGoogleDaiPlayerModule: GoogleDaiApi {
+    var isEnabled: Bool {
+        true
+    }
+
     func load(source _: GoogleDaiSource) {}
     func destroy() {}
 }
