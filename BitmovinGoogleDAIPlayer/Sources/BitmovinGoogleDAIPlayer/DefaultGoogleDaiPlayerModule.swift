@@ -183,14 +183,19 @@ private extension DefaultGoogleDaiPlayerModule {
                     return
                 }
 
-                metadata.entries
-                    .compactMap { ($0 as? AVMetadataItem)?.stringValue }
-                    .filter { $0.hasPrefix("google_") }
-                    .forEach {
-                        self.streamSessionController.playbackEventReporter.playbackDidReceiveTimedMetadata(
-                            ["TXXX": $0]
-                        )
+                // IMA expects custom video displays to forward AVMetadataItem keys and values:
+                // https://groups.google.com/g/ima-sdk/c/YDaAi0joR08
+                let timedMetadata = metadata.entries.reduce(into: [String: String]()) { result, entry in
+                    guard let item = entry as? AVMetadataItem,
+                          let key = item.key?.description,
+                          let value = item.stringValue
+                    else {
+                        return
                     }
+                    result[key] = value
+                }
+                guard !timedMetadata.isEmpty else { return }
+                streamSessionController.playbackEventReporter.playbackDidReceiveTimedMetadata(timedMetadata)
             }
             .store(in: &cancellables)
 
