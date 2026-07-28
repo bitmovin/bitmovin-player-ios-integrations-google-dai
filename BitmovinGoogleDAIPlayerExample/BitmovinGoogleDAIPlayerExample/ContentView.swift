@@ -31,11 +31,17 @@ struct ContentView: View {
             Spacer()
         }
         .padding()
-        .onAppear {
-            let googleDaiSource = GoogleDaiSource()
+        .onAppear(perform: loadGoogleDaiSource)
+    }
 
-            player.googleDai.load(source: googleDaiSource)
-        }
+    private func loadGoogleDaiSource() {
+        let googleDaiSource = GoogleDaiSource.live(
+            assetKey: "c-rArva4ShKVIAkNfy6HUQ",
+            apiKey: nil,
+            networkCode: "21775744923"
+        )
+
+        player.googleDai.load(source: googleDaiSource)
     }
 }
 
