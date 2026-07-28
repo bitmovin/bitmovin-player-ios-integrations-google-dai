@@ -28,16 +28,26 @@ final class DefaultGoogleDaiPlayerModule: _PlayerModule {
 }
 
 extension DefaultGoogleDaiPlayerModule: GoogleDaiApi {
+    var isEnabled: Bool {
+        true
+    }
+
     func load(source: GoogleDaiSource) {
-        guard let player, let presentationContext = player.ads.presentationContext else {
+        guard let player else {
+            Logger.error("Google DAI cannot load because the Player is no longer available.")
+            return
+        }
+        guard let presentationContext = player.ads.presentationContext else {
+            Logger.error(
+                """
+                Google DAI cannot load because the Player has no advertising presentation context. \
+                Attach the Player to a PlayerView before calling 'player.googleDai.load(source:)'.
+                """
+            )
             return
         }
 
-        loadTask?.cancel()
-        loadTask = nil
-        streamSessionController.destroy()
-        finishSsaiAdBreak()
-        hasReportedPlaybackStart = false
+        cancelLoading()
 
         streamSessionController.register(
             adContainer: presentationContext.adContainer,
@@ -50,6 +60,7 @@ extension DefaultGoogleDaiPlayerModule: GoogleDaiApi {
             }
 
             do {
+                try Task.checkCancellation()
                 let streamUrl = try await streamSessionController.load(source: source)
                 try Task.checkCancellation()
                 player.load(sourceConfig: SourceConfig(url: streamUrl, type: .hls))
@@ -62,11 +73,8 @@ extension DefaultGoogleDaiPlayerModule: GoogleDaiApi {
     }
 
     func destroy() {
-        loadTask?.cancel()
-        loadTask = nil
+        cancelLoading()
         streamSessionController.destroy()
-        finishSsaiAdBreak()
-        hasReportedPlaybackStart = false
     }
 }
 
@@ -218,6 +226,13 @@ extension DefaultGoogleDaiPlayerModule: GoogleDaiAdEventDelegate {
 }
 
 private extension DefaultGoogleDaiPlayerModule {
+    func cancelLoading() {
+        loadTask?.cancel()
+        loadTask = nil
+        finishSsaiAdBreak()
+        hasReportedPlaybackStart = false
+    }
+
     func subscribeToPlayerEvents(_ player: Player) {
         player.events.on(ReadyEvent.self)
             .sink { [weak self] _ in
@@ -268,14 +283,19 @@ private extension DefaultGoogleDaiPlayerModule {
                     return
                 }
 
-                metadata.entries
-                    .compactMap { ($0 as? AVMetadataItem)?.stringValue }
-                    .filter { $0.hasPrefix("google_") }
-                    .forEach {
-                        self.streamSessionController.playbackEventReporter.playbackDidReceiveTimedMetadata(
-                            ["TXXX": $0]
-                        )
+                // IMA expects custom video displays to forward AVMetadataItem keys and values:
+                // https://groups.google.com/g/ima-sdk/c/YDaAi0joR08
+                let timedMetadata = metadata.entries.reduce(into: [String: String]()) { result, entry in
+                    guard let item = entry as? AVMetadataItem,
+                          let key = item.key?.description,
+                          let value = item.stringValue
+                    else {
+                        return
                     }
+                    result[key] = value
+                }
+                guard !timedMetadata.isEmpty else { return }
+                streamSessionController.playbackEventReporter.playbackDidReceiveTimedMetadata(timedMetadata)
             }
             .store(in: &cancellables)
 

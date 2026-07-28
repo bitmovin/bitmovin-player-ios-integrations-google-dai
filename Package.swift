@@ -17,7 +17,7 @@ let package = Package(
         ),
     ],
     dependencies: [
-        .package(url: "https://github.com/bitmovin/player-ios.git", exact: "3.118.0-a.1"),
+        .package(url: "https://github.com/bitmovin/player-ios.git", exact: "3.119.0-a.1"),
         .package(url: "https://github.com/googleads/swift-package-manager-google-interactive-media-ads-ios", exact: "3.31.0"),
         .package(url: "https://github.com/googleads/swift-package-manager-google-interactive-media-ads-tvos", exact: "4.16.0")
     ],

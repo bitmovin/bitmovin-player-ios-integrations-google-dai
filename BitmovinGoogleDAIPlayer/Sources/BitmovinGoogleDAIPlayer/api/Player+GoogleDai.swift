@@ -2,26 +2,22 @@ import BitmovinPlayerCore
 import Foundation
 
 public extension Player {
-    /// Allows access to the Google DAI APIs when Google DAI is enabled for the player.
-    ///
-    /// Returns `nil` if the player was not created using ``PlayerFactory/createGoogleDaiPlayer(playerConfig:analytics:)``.
-    @MainActor
-    var googleDaiIfEnabled: GoogleDaiApi? {
-        _modules._module(DefaultGoogleDaiPlayerModule.self)
-    }
-
     /// Allows access to the Google DAI APIs.
     ///
-    /// The player must have been created using ``PlayerFactory/createGoogleDaiPlayer(playerConfig:analytics:)``.
-    ///
-    /// - Important: Accessing this property when Google DAI is not enabled triggers a fatal error and terminates the app.
+    /// - Note: Accessing this namespace no a player instance where Google DAI was not enabled will have no effect and
+    /// logs a warning. Use ``PlayerFactory/createGoogleDaiPlayer(playerConfig:analytics:)`` to create a Player
+    /// instance with Google DAI enabled. To dynamically check whether Google DAI is enabled
+    /// use ``GoogleDaiApi/isEnabled``.
     @MainActor
     var googleDai: GoogleDaiApi {
-        guard let googleDai = googleDaiIfEnabled else {
-            fatalError(
-                "Google DAI is unavailable because this player instance was not created using "
-                    + "PlayerFactory.createGoogleDaiPlayer(playerConfig:)."
+        guard let googleDai = _modules._module(DefaultGoogleDaiPlayerModule.self) else {
+            Logger.warn(
+                """
+                Google DAI is not enabled for this Player. Calls to 'player.googleDai' have no effect. \
+                Create the Player using 'PlayerFactory.createGoogleDaiPlayer(...)'.
+                """
             )
+            return UnavailableGoogleDaiApi.shared
         }
 
         return googleDai
