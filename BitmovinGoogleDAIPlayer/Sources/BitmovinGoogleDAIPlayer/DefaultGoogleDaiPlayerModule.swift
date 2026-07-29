@@ -141,7 +141,7 @@ extension DefaultGoogleDaiPlayerModule: GoogleDaiAdEventDelegate {
             finishSsaiAdBreak()
             let adBreak = GoogleDaiSsaiAdBreak(firstAd: ad)
             activeSsaiAdBreak = adBreak
-            adBreak.playerAdBreak = player.ssai.start(adBreak: adBreak)
+            player.ssai.start(adBreak: adBreak)
         }
 
         activeSsaiAd = ad

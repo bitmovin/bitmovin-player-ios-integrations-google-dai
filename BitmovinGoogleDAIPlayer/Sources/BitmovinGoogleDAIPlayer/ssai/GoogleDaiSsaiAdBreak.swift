@@ -8,9 +8,6 @@ final class GoogleDaiSsaiAdBreak: SsaiProviderAdBreak {
     let scheduleTime: TimeInterval
     let linearAdUiConfig: LinearAdUiConfig
     private(set) var ads: [SsaiProviderAd]
-    /// The Player ad break returned after registering this provider ad break with the Player through
-    /// `SsaiApi.start(adBreak:)`.
-    var playerAdBreak: SsaiAdBreak?
 
     init(firstAd: GoogleDaiSsaiAd) {
         linearAdUiConfig = LinearAdUiConfig()
