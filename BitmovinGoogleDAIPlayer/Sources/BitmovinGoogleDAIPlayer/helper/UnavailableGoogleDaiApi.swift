@@ -1,3 +1,4 @@
+import BitmovinPlayerCore
 import Foundation
 
 @MainActor
@@ -8,6 +9,10 @@ final class UnavailableGoogleDaiApi: GoogleDaiApi {
 
     private init() {}
 
-    func load(source _: GoogleDaiSource) {}
+    func load(
+        source _: GoogleDaiSource,
+        configureSourceConfig _: @escaping @MainActor (SourceConfig) -> Void
+    ) {}
+
     func destroy() {}
 }

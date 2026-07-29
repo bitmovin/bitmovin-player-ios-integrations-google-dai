@@ -32,7 +32,10 @@ extension DefaultGoogleDaiPlayerModule: GoogleDaiApi {
         true
     }
 
-    func load(source: GoogleDaiSource) {
+    func load(
+        source: GoogleDaiSource,
+        configureSourceConfig: @escaping @MainActor (SourceConfig) -> Void
+    ) {
         guard let player else {
             Logger.error("Google DAI cannot load because the Player is no longer available.")
             return
@@ -63,7 +66,9 @@ extension DefaultGoogleDaiPlayerModule: GoogleDaiApi {
                 try Task.checkCancellation()
                 let streamUrl = try await streamSessionController.load(source: source)
                 try Task.checkCancellation()
-                player.load(sourceConfig: SourceConfig(url: streamUrl, type: .hls))
+                let sourceConfig = SourceConfig(url: streamUrl, type: .hls)
+                configureSourceConfig(sourceConfig)
+                player.load(sourceConfig: sourceConfig)
             } catch is CancellationError {
                 return
             } catch {
