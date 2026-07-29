@@ -1,7 +1,8 @@
 import BitmovinPlayer
 import Foundation
 
-enum _InternalPlayerGoogleDaiFactory {
+enum GoogleDaiPlayerFactory {
+    /// Creates a Player instance with an attached Google DAI module
     @MainActor
     static func create(
         playerConfig: PlayerConfig,
