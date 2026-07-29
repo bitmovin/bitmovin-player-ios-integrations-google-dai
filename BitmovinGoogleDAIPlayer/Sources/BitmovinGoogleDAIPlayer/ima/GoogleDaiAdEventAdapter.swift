@@ -21,6 +21,8 @@ extension GoogleDaiAdEventAdapter: @preconcurrency IMAStreamManagerDelegate {
                 return
             }
             delegate?.adStarted(GoogleDaiSsaiAd(ad: ad))
+        case .CLICKED:
+            delegate?.adClicked()
         case .COMPLETE:
             delegate?.adCompleted()
         case .SKIPPED:

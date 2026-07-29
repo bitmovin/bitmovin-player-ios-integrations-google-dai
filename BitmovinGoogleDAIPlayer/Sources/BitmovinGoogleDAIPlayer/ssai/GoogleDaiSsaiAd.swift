@@ -8,6 +8,8 @@ final class GoogleDaiSsaiAd: SsaiProviderAd {
     let identifier: String?
     let duration: TimeInterval
     let clickThroughUrl: URL? = nil
+    /// The Player ad returned after registering this provider ad with the Player through `SsaiApi.start(ad:)`.
+    var playerAd: SsaiAd?
 
     let adBreakIdentifier: String
     let adBreakScheduleTime: TimeInterval
