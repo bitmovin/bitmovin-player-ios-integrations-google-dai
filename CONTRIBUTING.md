@@ -14,7 +14,6 @@ Pull requests are welcome and pair well with bug reports and feature requests. H
 - Develop in a fix or feature branch (`fix/describe-your-fix`, `feature/describe-your-feature`), not in `main` or `develop`.
 - Do not introduce new project warnings, and ensure Swift code passes the project's SwiftFormat check.
 - Make your changes in your fork.
-- Validate your changes according to the [Yospace Validation Procedure](https://developer.yospace.com/sdk-documentation/apple/userguide/latest/en/validate-your-app.html).
 - Add an entry to the [CHANGELOG.md](CHANGELOG.md) file in the `[Unreleased]` section to describe the changes to the project.
 - Submit a pull request to the main repository.
 
