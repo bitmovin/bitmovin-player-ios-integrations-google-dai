@@ -14,7 +14,7 @@ enum GoogleDaiPlayerFactory {
         )
 
         player._modules._registerModule {
-            DefaultGoogleDaiPlayerModule(player: $0)
+            _InternalGoogleDaiPlayerModuleFactory.create(player: $0)
         }
 
         return player

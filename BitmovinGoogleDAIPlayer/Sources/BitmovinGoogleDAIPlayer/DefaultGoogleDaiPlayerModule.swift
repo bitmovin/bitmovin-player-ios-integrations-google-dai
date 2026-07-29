@@ -6,7 +6,7 @@ import Foundation
 /// Coordinates Google DAI with a Bitmovin Player instance.
 /// It is the single boundary that performs Player loading, playback control, and SSAI API interactions.
 @MainActor
-final class DefaultGoogleDaiPlayerModule: _PlayerModule {
+final class DefaultGoogleDaiPlayerModule: _InternalGoogleDaiPlayerModule {
     private(set) weak var player: Player?
 
     private lazy var streamSessionController = GoogleDaiStreamSessionController(
