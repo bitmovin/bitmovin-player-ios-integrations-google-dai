@@ -3,6 +3,7 @@
 @MainActor
 protocol GoogleDaiAdEventDelegate: AnyObject {
     func adStarted(_ ad: GoogleDaiSsaiAd)
+    func adClicked()
     func adTapped()
     func adCompleted()
     func adSkipped()
