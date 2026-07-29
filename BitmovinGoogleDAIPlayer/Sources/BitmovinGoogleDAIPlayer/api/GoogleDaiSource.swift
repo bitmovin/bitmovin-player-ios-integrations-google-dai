@@ -2,7 +2,7 @@ import Foundation
 
 /// Describes a source to load through the Google DAI integration.
 public struct GoogleDaiSource: Sendable {
-    enum ContentType {
+    enum ContentType: Sendable {
         case live(assetKey: String)
     }
 
