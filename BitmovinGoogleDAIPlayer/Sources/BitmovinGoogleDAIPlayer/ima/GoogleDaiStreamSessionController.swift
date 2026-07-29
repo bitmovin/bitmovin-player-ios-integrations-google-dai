@@ -113,18 +113,19 @@ final class GoogleDaiStreamSessionController: NSObject {
         loadContext: LoadContext,
         adDisplayContainer: IMAAdDisplayContainer,
     ) -> IMAStreamRequest {
-        switch source {
-        case let .live(assetKey, apiKey, networkCode):
-            let request = IMALiveStreamRequest(
+        let request: IMAStreamRequest = switch source.contentType {
+        case let .live(assetKey):
+            IMALiveStreamRequest(
                 assetKey: assetKey,
-                networkCode: networkCode,
+                networkCode: source.networkCode,
                 adDisplayContainer: adDisplayContainer,
                 videoDisplay: videoDisplayAdapter,
                 userContext: loadContext
             )
-            request.apiKey = apiKey
-            return request
         }
+        request.apiKey = source.apiKey
+        request.adTagParameters = source.adTagParameters
+        return request
     }
 
     private func finishLoading(with result: Result<URL, Swift.Error>) {
