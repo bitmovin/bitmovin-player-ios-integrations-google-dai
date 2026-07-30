@@ -130,9 +130,14 @@ private extension DefaultGoogleDaiPlayerModule {
     }
 
     func subscribeToPlayerEvents(_ player: Player) {
-        player.events.on(ReadyEvent.self)
+        player.events.on(SourceLoadedEvent.self)
             .sink { [weak self] _ in
                 self?.streamSessionController.playbackEventReporter.playbackDidLoad()
+            }
+            .store(in: &cancellables)
+
+        player.events.on(ReadyEvent.self)
+            .sink { [weak self] _ in
                 self?.streamSessionController.playbackEventReporter.playbackDidBecomeReady()
             }
             .store(in: &cancellables)
