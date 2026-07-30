@@ -88,10 +88,6 @@ extension DefaultGoogleDaiPlayerModule: GoogleDaiPlaybackControlDelegate {
         player?.unload()
     }
 
-    func playbackDidRequestSeek(to time: TimeInterval) {
-        player?.seek(time: time)
-    }
-
     func playbackDidRequestVolume(_ volume: Float) {
         player?.volume = Int((min(max(volume, 0), 1) * 100).rounded())
     }

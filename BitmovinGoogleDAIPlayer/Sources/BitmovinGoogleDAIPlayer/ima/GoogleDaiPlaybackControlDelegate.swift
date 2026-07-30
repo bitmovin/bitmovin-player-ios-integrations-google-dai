@@ -7,6 +7,5 @@ protocol GoogleDaiPlaybackControlDelegate: AnyObject {
     func playbackDidRequestPlay()
     func playbackDidRequestPause()
     func playbackDidRequestReset()
-    func playbackDidRequestSeek(to time: TimeInterval)
     func playbackDidRequestVolume(_ volume: Float)
 }
