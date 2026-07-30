@@ -134,6 +134,15 @@ final class GoogleDaiStreamSessionController: NSObject {
         loadContinuation.resume(with: result)
     }
 
+    private func finishLoading(with adError: IMAAdError) {
+        let error = NSError(
+            domain: "GoogleInteractiveMediaAds",
+            code: adError.code.rawValue,
+            userInfo: [NSLocalizedDescriptionKey: adError.message ?? "Google DAI stream loading failed."]
+        )
+        finishLoading(with: .failure(error))
+    }
+
     private func cancelLoading(identifier: UUID) {
         guard loadContext?.identifier == identifier else {
             return
@@ -159,6 +168,7 @@ extension GoogleDaiStreamSessionController: @preconcurrency IMAAdsLoaderDelegate
         }
 
         self.streamManager = streamManager
+        streamManager.delegate = self
         streamManager.initialize(with: nil)
     }
 
@@ -166,12 +176,21 @@ extension GoogleDaiStreamSessionController: @preconcurrency IMAAdsLoaderDelegate
         guard (adErrorData.userContext as AnyObject?) === loadContext else {
             return
         }
-        let adError = adErrorData.adError
-        let error = NSError(
-            domain: "GoogleInteractiveMediaAds",
-            code: adError.code.rawValue,
-            userInfo: [NSLocalizedDescriptionKey: adError.message ?? "Google DAI stream loading failed."]
-        )
-        finishLoading(with: .failure(error))
+        finishLoading(with: adErrorData.adError)
+    }
+}
+
+extension GoogleDaiStreamSessionController: @preconcurrency IMAStreamManagerDelegate {
+    func streamManager(_: IMAStreamManager, didReceive _: IMAAdEvent) {
+        // Will be implemented in follow-up PR
+    }
+
+    func streamManager(_ streamManager: IMAStreamManager, didReceive adError: IMAAdError) {
+        guard streamManager === self.streamManager, loadContinuation != nil else {
+            return
+        }
+
+        finishLoading(with: adError)
+        destroyStreamManager()
     }
 }
