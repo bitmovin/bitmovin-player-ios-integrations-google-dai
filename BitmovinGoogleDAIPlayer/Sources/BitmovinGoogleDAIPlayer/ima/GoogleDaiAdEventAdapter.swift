@@ -1,20 +1,17 @@
 import Foundation
 import GoogleInteractiveMediaAds
 
-/// Translates raw `IMAStreamManagerDelegate` callbacks into semantic integration events.
+/// Translates raw IMA stream manager callbacks into semantic integration events.
 /// This prevents IMA event enums and loosely typed payload dictionaries from reaching the player module.
 @MainActor
-final class GoogleDaiAdEventAdapter: NSObject {
+final class GoogleDaiAdEventAdapter {
     weak var delegate: (any GoogleDaiAdEventDelegate)?
 
     init(delegate: any GoogleDaiAdEventDelegate) {
         self.delegate = delegate
-        super.init()
     }
-}
 
-extension GoogleDaiAdEventAdapter: @preconcurrency IMAStreamManagerDelegate {
-    func streamManager(_: IMAStreamManager, didReceive event: IMAAdEvent) {
+    func handle(event: IMAAdEvent) {
         switch event.type {
         case .STARTED:
             guard let ad = event.ad else {
@@ -55,7 +52,7 @@ extension GoogleDaiAdEventAdapter: @preconcurrency IMAStreamManagerDelegate {
         }
     }
 
-    func streamManager(_: IMAStreamManager, didReceive error: IMAAdError) {
+    func handle(error: IMAAdError) {
         delegate?.adPlaybackFailed(
             message: error.message ?? "Google DAI ad playback failed.",
             errorCode: error.code.rawValue
