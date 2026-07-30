@@ -95,7 +95,7 @@ extension DefaultGoogleDaiPlayerModule: GoogleDaiPlaybackControlDelegate {
 
 extension DefaultGoogleDaiPlayerModule: GoogleDaiPlaybackInfoDataSource {
     var currentMediaTime: TimeInterval {
-        player?.currentTime ?? 0
+        player?.currentTime(.relativeTime) ?? 0
     }
 
     var totalMediaTime: TimeInterval {
@@ -107,7 +107,7 @@ extension DefaultGoogleDaiPlayerModule: GoogleDaiPlaybackInfoDataSource {
         guard let player else {
             return 0
         }
-        return player.currentTime + player.buffer.getLevel(.forwardDuration).level
+        return player.currentTime(.relativeTime) + player.buffer.getLevel(.forwardDuration).level
     }
 
     var isPlaying: Bool {
@@ -163,12 +163,12 @@ private extension DefaultGoogleDaiPlayerModule {
             .store(in: &cancellables)
 
         player.events.on(TimeChangedEvent.self)
-            .sink { [weak self] event in
+            .sink { [weak self] _ in
                 guard let self else {
                     return
                 }
                 streamSessionController.playbackEventReporter.playbackDidProgress(
-                    to: event.currentTime,
+                    to: currentMediaTime,
                     duration: totalMediaTime
                 )
                 streamSessionController.playbackEventReporter.playbackDidBuffer(to: bufferedMediaTime)
