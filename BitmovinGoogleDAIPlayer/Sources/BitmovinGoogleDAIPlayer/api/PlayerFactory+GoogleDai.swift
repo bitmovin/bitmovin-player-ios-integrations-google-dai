@@ -14,7 +14,7 @@ public extension PlayerFactory {
         playerConfig: PlayerConfig = PlayerConfig(),
         analytics: AnalyticsPlayerConfig = .enabled
     ) -> Player {
-        _InternalPlayerGoogleDaiFactory.create(
+        GoogleDaiPlayerFactory.create(
             playerConfig: playerConfig,
             analytics: analytics
         )
