@@ -138,6 +138,15 @@ final class GoogleDaiStreamSessionController: NSObject {
         loadContinuation.resume(with: result)
     }
 
+    private func finishLoading(with adError: IMAAdError) {
+        let error = NSError(
+            domain: "GoogleInteractiveMediaAds",
+            code: adError.code.rawValue,
+            userInfo: [NSLocalizedDescriptionKey: adError.message ?? "Google DAI stream loading failed."]
+        )
+        finishLoading(with: .failure(error))
+    }
+
     private func cancelLoading(identifier: UUID) {
         guard loadContext?.identifier == identifier else {
             return
@@ -163,7 +172,7 @@ extension GoogleDaiStreamSessionController: @preconcurrency IMAAdsLoaderDelegate
         }
 
         self.streamManager = streamManager
-        streamManager.delegate = adEventAdapter
+        streamManager.delegate = self
         streamManager.initialize(with: nil)
     }
 
@@ -171,12 +180,28 @@ extension GoogleDaiStreamSessionController: @preconcurrency IMAAdsLoaderDelegate
         guard (adErrorData.userContext as AnyObject?) === loadContext else {
             return
         }
-        let adError = adErrorData.adError
-        let error = NSError(
-            domain: "GoogleInteractiveMediaAds",
-            code: adError.code.rawValue,
-            userInfo: [NSLocalizedDescriptionKey: adError.message ?? "Google DAI stream loading failed."]
-        )
-        finishLoading(with: .failure(error))
+        finishLoading(with: adErrorData.adError)
+    }
+}
+
+extension GoogleDaiStreamSessionController: @preconcurrency IMAStreamManagerDelegate {
+    func streamManager(_ streamManager: IMAStreamManager, didReceive event: IMAAdEvent) {
+        guard streamManager === self.streamManager else {
+            return
+        }
+        adEventAdapter.handle(event: event)
+    }
+
+    func streamManager(_ streamManager: IMAStreamManager, didReceive adError: IMAAdError) {
+        guard streamManager === self.streamManager else {
+            return
+        }
+
+        if loadContinuation != nil {
+            finishLoading(with: adError)
+            destroyStreamManager()
+        } else {
+            adEventAdapter.handle(error: adError)
+        }
     }
 }

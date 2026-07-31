@@ -62,8 +62,8 @@ extension GoogleDaiVideoDisplayAdapter: @preconcurrency IMAVideoDisplay {
         playbackControlDelegate?.playbackDidRequestReset()
     }
 
-    func seekStream(toTime time: TimeInterval) {
-        playbackControlDelegate?.playbackDidRequestSeek(to: time)
+    func seekStream(toTime _: TimeInterval) {
+        // TODO: Forward IMA seek requests when Google DAI VOD support is added.
     }
 
     func skipCurrentInterstitialItem() {}
