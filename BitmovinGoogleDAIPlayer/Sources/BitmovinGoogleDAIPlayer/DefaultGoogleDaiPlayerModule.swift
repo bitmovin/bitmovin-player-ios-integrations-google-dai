@@ -16,14 +16,15 @@ final class DefaultGoogleDaiPlayerModule: _PlayerModule {
     )
 
     private var loadTask: Task<Void, Never>?
-    private var cancellables = Set<AnyCancellable>()
+    private var activeDaiSource: Source?
+    private var activeDaiSourcePlayerEventCancellables = Set<AnyCancellable>()
+    private var activeDaiSourceUnloadCancellable: AnyCancellable?
     private var hasReportedPlaybackStart = false
     private var activeSsaiAdBreak: GoogleDaiSsaiAdBreak?
     private var activeSsaiAd: GoogleDaiSsaiAd?
 
     init(player: Player) {
         self.player = player
-        subscribeToPlayerEvents(player)
     }
 }
 
@@ -47,7 +48,7 @@ extension DefaultGoogleDaiPlayerModule: GoogleDaiApi {
             return
         }
 
-        cancelLoading()
+        unloadGoogleDaiSession()
 
         streamSessionController.register(
             adContainer: presentationContext.adContainer,
@@ -63,7 +64,10 @@ extension DefaultGoogleDaiPlayerModule: GoogleDaiApi {
                 try Task.checkCancellation()
                 let streamUrl = try await streamSessionController.load(source: source)
                 try Task.checkCancellation()
-                player.load(sourceConfig: SourceConfig(url: streamUrl, type: .hls))
+
+                let sourceConfig = SourceConfig(url: streamUrl, type: .hls)
+                let source = createDaiSource(sourceConfig: sourceConfig, player: player)
+                player.load(source: source)
             } catch is CancellationError {
                 return
             } catch {
@@ -73,8 +77,7 @@ extension DefaultGoogleDaiPlayerModule: GoogleDaiApi {
     }
 
     func destroy() {
-        cancelLoading()
-        streamSessionController.destroy()
+        unloadGoogleDaiSession()
     }
 }
 
@@ -91,10 +94,6 @@ extension DefaultGoogleDaiPlayerModule: GoogleDaiPlaybackControlDelegate {
         player?.unload()
     }
 
-    func playbackDidRequestSeek(to time: TimeInterval) {
-        player?.seek(time: time)
-    }
-
     func playbackDidRequestVolume(_ volume: Float) {
         player?.volume = Int((min(max(volume, 0), 1) * 100).rounded())
     }
@@ -102,7 +101,7 @@ extension DefaultGoogleDaiPlayerModule: GoogleDaiPlaybackControlDelegate {
 
 extension DefaultGoogleDaiPlayerModule: GoogleDaiPlaybackInfoDataSource {
     var currentMediaTime: TimeInterval {
-        player?.currentTime ?? 0
+        player?.currentTime(.relativeTime) ?? 0
     }
 
     var totalMediaTime: TimeInterval {
@@ -114,7 +113,7 @@ extension DefaultGoogleDaiPlayerModule: GoogleDaiPlaybackInfoDataSource {
         guard let player else {
             return 0
         }
-        return player.currentTime + player.buffer.getLevel(.forwardDuration).level
+        return player.currentTime(.relativeTime) + player.buffer.getLevel(.forwardDuration).level
     }
 
     var isPlaying: Bool {
@@ -226,22 +225,63 @@ extension DefaultGoogleDaiPlayerModule: GoogleDaiAdEventDelegate {
 }
 
 private extension DefaultGoogleDaiPlayerModule {
-    func cancelLoading() {
-        loadTask?.cancel()
-        loadTask = nil
-        finishSsaiAdBreak()
-        hasReportedPlaybackStart = false
+    func createDaiSource(sourceConfig: SourceConfig, player: Player) -> Source {
+        activeDaiSourceUnloadCancellable?.cancel()
+
+        let source = SourceFactory.createSource(from: sourceConfig)
+        activeDaiSource = source
+        subscribeToPlayerEvents(forDaiSource: source, in: player)
+
+        activeDaiSourceUnloadCancellable = source.events.on(SourceUnloadEvent.self)
+            .sink { [weak self] event in
+                guard let self, let activeDaiSource, activeDaiSource === event.source else {
+                    return
+                }
+
+                unloadGoogleDaiSession()
+            }
+
+        return source
     }
 
-    func subscribeToPlayerEvents(_ player: Player) {
-        player.events.on(ReadyEvent.self)
+    func unloadGoogleDaiSession() {
+        // Cancel any ongoing loading
+        loadTask?.cancel()
+        loadTask = nil
+
+        // Cancel and reset current loaded source if any
+        activeDaiSourceUnloadCancellable?.cancel()
+        activeDaiSourceUnloadCancellable = nil
+        activeDaiSource = nil
+
+        // Cancel current player subscriptions
+        activeDaiSourcePlayerEventCancellables.removeAll()
+
+        finishSsaiAdBreak()
+        hasReportedPlaybackStart = false
+
+        streamSessionController.destroy()
+    }
+
+    /// Forwards Player events to the IMA session only while `source` is the Player's current source.
+    /// These subscriptions belong to the active DAI source and are cancelled when its session ends.
+    func subscribeToPlayerEvents(forDaiSource source: Source, in player: Player) {
+        player.events.on(SourceLoadedEvent.self)
+            .filterForCurrentSource(source, in: player)
             .sink { [weak self] _ in
                 self?.streamSessionController.playbackEventReporter.playbackDidLoad()
+            }
+            .store(in: &activeDaiSourcePlayerEventCancellables)
+
+        player.events.on(ReadyEvent.self)
+            .filterForCurrentSource(source, in: player)
+            .sink { [weak self] _ in
                 self?.streamSessionController.playbackEventReporter.playbackDidBecomeReady()
             }
-            .store(in: &cancellables)
+            .store(in: &activeDaiSourcePlayerEventCancellables)
 
         player.events.on(PlayingEvent.self)
+            .filterForCurrentSource(source, in: player)
             .sink { [weak self] _ in
                 guard let self else {
                     return
@@ -253,28 +293,31 @@ private extension DefaultGoogleDaiPlayerModule {
                     streamSessionController.playbackEventReporter.playbackDidStart()
                 }
             }
-            .store(in: &cancellables)
+            .store(in: &activeDaiSourcePlayerEventCancellables)
 
         player.events.on(PausedEvent.self)
+            .filterForCurrentSource(source, in: player)
             .sink { [weak self] _ in
                 self?.streamSessionController.playbackEventReporter.playbackDidPause()
             }
-            .store(in: &cancellables)
+            .store(in: &activeDaiSourcePlayerEventCancellables)
 
         player.events.on(TimeChangedEvent.self)
-            .sink { [weak self] event in
+            .filterForCurrentSource(source, in: player)
+            .sink { [weak self] _ in
                 guard let self else {
                     return
                 }
                 streamSessionController.playbackEventReporter.playbackDidProgress(
-                    to: event.currentTime,
+                    to: currentMediaTime,
                     duration: totalMediaTime
                 )
                 streamSessionController.playbackEventReporter.playbackDidBuffer(to: bufferedMediaTime)
             }
-            .store(in: &cancellables)
+            .store(in: &activeDaiSourcePlayerEventCancellables)
 
         player.events.on(MetadataEvent.self)
+            .filterForCurrentSource(source, in: player)
             .sink { [weak self] event in
                 guard let self,
                       event.metadataType == .ID3,
@@ -297,42 +340,48 @@ private extension DefaultGoogleDaiPlayerModule {
                 guard !timedMetadata.isEmpty else { return }
                 streamSessionController.playbackEventReporter.playbackDidReceiveTimedMetadata(timedMetadata)
             }
-            .store(in: &cancellables)
+            .store(in: &activeDaiSourcePlayerEventCancellables)
 
         player.events.on(PlaybackFinishedEvent.self)
+            .filterForCurrentSource(source, in: player)
             .sink { [weak self] _ in
                 self?.streamSessionController.playbackEventReporter.playbackDidComplete()
             }
-            .store(in: &cancellables)
+            .store(in: &activeDaiSourcePlayerEventCancellables)
 
         player.events.on(StallStartedEvent.self)
+            .filterForCurrentSource(source, in: player)
             .sink { [weak self] _ in
                 self?.streamSessionController.playbackEventReporter.playbackDidStartBuffering()
             }
-            .store(in: &cancellables)
+            .store(in: &activeDaiSourcePlayerEventCancellables)
 
         player.events.on(StallEndedEvent.self)
+            .filterForCurrentSource(source, in: player)
             .sink { [weak self] _ in
                 self?.streamSessionController.playbackEventReporter.playbackDidBecomeReady()
             }
-            .store(in: &cancellables)
+            .store(in: &activeDaiSourcePlayerEventCancellables)
 
         player.events.on(MutedEvent.self)
+            .filterForCurrentSource(source, in: player)
             .sink { [weak self] _ in
                 self?.streamSessionController.playbackEventReporter.playbackDidChangeVolume(to: 0)
             }
-            .store(in: &cancellables)
+            .store(in: &activeDaiSourcePlayerEventCancellables)
 
         player.events.on(UnmutedEvent.self)
+            .filterForCurrentSource(source, in: player)
             .sink { [weak self] _ in
                 guard let self else {
                     return
                 }
                 streamSessionController.playbackEventReporter.playbackDidChangeVolume(to: volume)
             }
-            .store(in: &cancellables)
+            .store(in: &activeDaiSourcePlayerEventCancellables)
 
         player.events.on(PlayerErrorEvent.self)
+            .filterForCurrentSource(source, in: player)
             .sink { [weak self] event in
                 self?.streamSessionController.playbackEventReporter.playbackDidFail(
                     with: NSError(
@@ -342,9 +391,10 @@ private extension DefaultGoogleDaiPlayerModule {
                     )
                 )
             }
-            .store(in: &cancellables)
+            .store(in: &activeDaiSourcePlayerEventCancellables)
 
         player.events.on(SourceErrorEvent.self)
+            .filterForCurrentSource(source, in: player)
             .sink { [weak self] event in
                 self?.streamSessionController.playbackEventReporter.playbackDidFail(
                     with: NSError(
@@ -354,6 +404,22 @@ private extension DefaultGoogleDaiPlayerModule {
                     )
                 )
             }
-            .store(in: &cancellables)
+            .store(in: &activeDaiSourcePlayerEventCancellables)
+    }
+}
+
+private extension Publisher {
+    /// Emits values only while `source` is the Player's current source instance.
+    func filterForCurrentSource(
+        _ source: Source,
+        in player: Player
+    ) -> Publishers.Filter<Self> {
+        filter { [weak player, weak source] _ in
+            guard let player, let source else {
+                return false
+            }
+
+            return player.source === source
+        }
     }
 }
