@@ -4,14 +4,15 @@ import Combine
 import Foundation
 
 /// Coordinates Google DAI with a Bitmovin Player instance.
-/// It is the single boundary that performs Player loading and playback control.
+/// It is the single boundary that performs Player loading, playback control, and SSAI API interactions.
 @MainActor
 final class DefaultGoogleDaiPlayerModule: _PlayerModule {
     private(set) weak var player: Player?
 
     private lazy var streamSessionController = GoogleDaiStreamSessionController(
         playbackControlDelegate: self,
-        playbackInfoDataSource: self
+        playbackInfoDataSource: self,
+        adEventDelegate: self
     )
 
     private var loadTask: Task<Void, Never>?
@@ -19,6 +20,8 @@ final class DefaultGoogleDaiPlayerModule: _PlayerModule {
     private var activeDaiSourcePlayerEventCancellables = Set<AnyCancellable>()
     private var activeDaiSourceUnloadCancellable: AnyCancellable?
     private var hasReportedPlaybackStart = false
+    private var activeSsaiAdBreak: GoogleDaiSsaiAdBreak?
+    private var activeSsaiAd: GoogleDaiSsaiAd?
 
     init(player: Player) {
         self.player = player
@@ -125,6 +128,102 @@ extension DefaultGoogleDaiPlayerModule: GoogleDaiPlaybackInfoDataSource {
     }
 }
 
+extension DefaultGoogleDaiPlayerModule: GoogleDaiAdEventDelegate {
+    func adStarted(_ ad: GoogleDaiSsaiAd) {
+        guard let player else {
+            return
+        }
+
+        finishSsaiAd()
+        if let activeSsaiAdBreak, activeSsaiAdBreak.identifier == ad.adBreakIdentifier {
+            activeSsaiAdBreak.add(ad: ad)
+        } else {
+            finishSsaiAdBreak()
+            let adBreak = GoogleDaiSsaiAdBreak(firstAd: ad)
+            activeSsaiAdBreak = adBreak
+            player.ssai.start(adBreak: adBreak)
+        }
+
+        activeSsaiAd = ad
+        player.ssai.start(ad: ad)
+    }
+
+    func adTapped() {
+        guard let player else {
+            return
+        }
+
+        if player.isPlaying {
+            player.pause()
+        } else {
+            player.play()
+        }
+    }
+
+    func adCompleted() {
+        finishSsaiAd()
+    }
+
+    func adSkipped() {
+        finishSsaiAd()
+    }
+
+    func adPeriodEnded() {
+        finishSsaiAdBreak()
+    }
+
+    func adBreakEnded() {
+        finishSsaiAdBreak()
+    }
+
+    func allAdsCompleted() {
+        finishSsaiAdBreak()
+    }
+
+    func adReachedFirstQuartile() {
+        player?.ssai.reportAdQuartile(.firstQuartile)
+    }
+
+    func adReachedMidpoint() {
+        player?.ssai.reportAdQuartile(.midpoint)
+    }
+
+    func adReachedThirdQuartile() {
+        player?.ssai.reportAdQuartile(.thirdQuartile)
+    }
+
+    func adLog(message: String, errorCode: Int) {
+        player?.ssai.reportAdError(message: message, errorCode: errorCode)
+    }
+
+    func adBreakFetchFailed(message: String, errorCode: Int) {
+        player?.ssai.reportAdError(message: message, errorCode: errorCode)
+    }
+
+    func adPlaybackFailed(message: String, errorCode: Int) {
+        player?.ssai.reportAdError(message: message, errorCode: errorCode)
+    }
+
+    private func finishSsaiAdBreak() {
+        guard activeSsaiAdBreak != nil else {
+            return
+        }
+
+        finishSsaiAd()
+        player?.ssai.finishAdBreak()
+        activeSsaiAdBreak = nil
+    }
+
+    private func finishSsaiAd() {
+        guard activeSsaiAd != nil else {
+            return
+        }
+
+        player?.ssai.finishAd()
+        activeSsaiAd = nil
+    }
+}
+
 private extension DefaultGoogleDaiPlayerModule {
     func createDaiSource(sourceConfig: SourceConfig, player: Player) -> Source {
         activeDaiSourceUnloadCancellable?.cancel()
@@ -158,6 +257,7 @@ private extension DefaultGoogleDaiPlayerModule {
         // Cancel current player subscriptions
         activeDaiSourcePlayerEventCancellables.removeAll()
 
+        finishSsaiAdBreak()
         hasReportedPlaybackStart = false
 
         streamSessionController.destroy()

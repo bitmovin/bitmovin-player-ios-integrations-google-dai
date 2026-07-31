@@ -28,6 +28,7 @@ final class GoogleDaiStreamSessionController: NSObject {
 
     private let imaAdsLoader = IMAAdsLoader()
     private let videoDisplayAdapter: GoogleDaiVideoDisplayAdapter
+    private let adEventAdapter: GoogleDaiAdEventAdapter
 
     private var adDisplayContainer: IMAAdDisplayContainer?
     private var streamManager: IMAStreamManager?
@@ -40,12 +41,14 @@ final class GoogleDaiStreamSessionController: NSObject {
 
     init(
         playbackControlDelegate: any GoogleDaiPlaybackControlDelegate,
-        playbackInfoDataSource: any GoogleDaiPlaybackInfoDataSource
+        playbackInfoDataSource: any GoogleDaiPlaybackInfoDataSource,
+        adEventDelegate: any GoogleDaiAdEventDelegate
     ) {
         videoDisplayAdapter = GoogleDaiVideoDisplayAdapter(
             playbackControlDelegate: playbackControlDelegate,
             playbackInfoDataSource: playbackInfoDataSource
         )
+        adEventAdapter = GoogleDaiAdEventAdapter(delegate: adEventDelegate)
 
         super.init()
 
@@ -181,16 +184,23 @@ extension GoogleDaiStreamSessionController: @preconcurrency IMAAdsLoaderDelegate
 }
 
 extension GoogleDaiStreamSessionController: @preconcurrency IMAStreamManagerDelegate {
-    func streamManager(_: IMAStreamManager, didReceive _: IMAAdEvent) {
-        // Will be implemented in follow-up PR
+    func streamManager(_ streamManager: IMAStreamManager, didReceive event: IMAAdEvent) {
+        guard streamManager === self.streamManager else {
+            return
+        }
+        adEventAdapter.handle(event: event)
     }
 
     func streamManager(_ streamManager: IMAStreamManager, didReceive adError: IMAAdError) {
-        guard streamManager === self.streamManager, loadContinuation != nil else {
+        guard streamManager === self.streamManager else {
             return
         }
 
-        finishLoading(with: adError)
-        destroyStreamManager()
+        if loadContinuation != nil {
+            finishLoading(with: adError)
+            destroyStreamManager()
+        } else {
+            adEventAdapter.handle(error: adError)
+        }
     }
 }
