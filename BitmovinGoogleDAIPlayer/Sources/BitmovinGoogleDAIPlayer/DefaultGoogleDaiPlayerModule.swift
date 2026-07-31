@@ -145,7 +145,11 @@ extension DefaultGoogleDaiPlayerModule: GoogleDaiAdEventDelegate {
         }
 
         activeSsaiAd = ad
-        player.ssai.start(ad: ad)
+        ad.playerAd = player.ssai.start(ad: ad)
+    }
+
+    func adClicked() {
+        activeSsaiAd?.playerAd?.clickThroughUrlOpened?()
     }
 
     func adTapped() {
