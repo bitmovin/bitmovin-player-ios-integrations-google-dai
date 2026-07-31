@@ -45,7 +45,7 @@ extension DefaultGoogleDaiPlayerModule: GoogleDaiApi {
             return
         }
 
-        cancelLoading()
+        unloadGoogleDaiSession()
 
         streamSessionController.register(
             adContainer: presentationContext.adContainer,
@@ -145,19 +145,21 @@ private extension DefaultGoogleDaiPlayerModule {
         return source
     }
 
-    func cancelLoading() {
+    func unloadGoogleDaiSession() {
+        // Cancel any ongoing loading
         loadTask?.cancel()
         loadTask = nil
-        hasReportedPlaybackStart = false
-    }
 
-    func unloadGoogleDaiSession() {
+        // Cancel and reset current loaded source if any
         activeDaiSourceUnloadCancellable?.cancel()
         activeDaiSourceUnloadCancellable = nil
         activeDaiSource = nil
 
+        // Cancel current player subscriptions
         activeDaiSourcePlayerEventCancellables.removeAll()
-        cancelLoading()
+
+        hasReportedPlaybackStart = false
+
         streamSessionController.destroy()
     }
 
