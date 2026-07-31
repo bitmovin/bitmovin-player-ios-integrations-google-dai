@@ -95,6 +95,21 @@ The Player must be attached to a `PlayerView` or `VideoPlayerView` before callin
 
 ## Advanced Usage
 
+### Customize the Source Config
+
+The integration creates the `SourceConfig` after Google DAI resolves the stitched stream URL. Use the
+`configureSourceConfig` closure to apply source-specific settings, such as DRM configuration, before the Player loads
+the source:
+
+```swift
+player.googleDai.load(source: googleDaiSource) { sourceConfig in
+    sourceConfig.drmConfig = FairplayConfig(
+        license: URL(string: "https://example.com/fairplay/license")!,
+        certificateURL: URL(string: "https://example.com/fairplay/certificate")!
+    )
+}
+```
+
 ### Integration Availability
 
 The `player.googleDai` namespace is always available, but it is enabled only for Player instances created with `PlayerFactory.createGoogleDaiPlayer(...)`. Use `isEnabled` to check its availability at runtime:
