@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <Scheme
-   LastUpgradeVersion = "2700"
+   LastUpgradeVersion = "2650"
    version = "1.7">
    <BuildAction
       parallelizeBuildables = "YES"
@@ -15,10 +15,10 @@
             buildForAnalyzing = "YES">
             <BuildableReference
                BuildableIdentifier = "primary"
-               BlueprintIdentifier = "65A3F28D2ED87D5200789365"
-               BuildableName = "BitmovinGoogleDAIPlayerExample.app"
-               BlueprintName = "BitmovinGoogleDAIPlayerExample"
-               ReferencedContainer = "container:BitmovinGoogleDAIPlayerExample.xcodeproj">
+               BlueprintIdentifier = "3764A0B03021DA8200567BD4"
+               BuildableName = "TestsHostApp.app"
+               BlueprintName = "TestsHostApp"
+               ReferencedContainer = "container:BitmovinGoogleDAIPlayerTests.xcodeproj">
             </BuildableReference>
          </BuildActionEntry>
       </BuildActionEntries>
@@ -29,6 +29,19 @@
       selectedLauncherIdentifier = "Xcode.DebuggerFoundation.Launcher.LLDB"
       shouldUseLaunchSchemeArgsEnv = "YES"
       shouldAutocreateTestPlan = "YES">
+      <Testables>
+         <TestableReference
+            skipped = "NO"
+            parallelizable = "YES">
+            <BuildableReference
+               BuildableIdentifier = "primary"
+               BlueprintIdentifier = "3764A0A43021DA6B00567BD4"
+               BuildableName = "BitmovinGoogleDAIPlayerIntegrationTests.xctest"
+               BlueprintName = "BitmovinGoogleDAIPlayerIntegrationTests"
+               ReferencedContainer = "container:BitmovinGoogleDAIPlayerTests.xcodeproj">
+            </BuildableReference>
+         </TestableReference>
+      </Testables>
    </TestAction>
    <LaunchAction
       buildConfiguration = "Debug"
@@ -40,15 +53,15 @@
       debugDocumentVersioning = "YES"
       debugServiceExtension = "internal"
       allowLocationSimulation = "YES"
-      queueDebuggingEnabled = "No">
+      queueDebuggingEnableBacktraceRecording = "Yes">
       <BuildableProductRunnable
          runnableDebuggingMode = "0">
          <BuildableReference
             BuildableIdentifier = "primary"
-            BlueprintIdentifier = "65A3F28D2ED87D5200789365"
-            BuildableName = "BitmovinGoogleDAIPlayerExample.app"
-            BlueprintName = "BitmovinGoogleDAIPlayerExample"
-            ReferencedContainer = "container:BitmovinGoogleDAIPlayerExample.xcodeproj">
+            BlueprintIdentifier = "3764A0B03021DA8200567BD4"
+            BuildableName = "TestsHostApp.app"
+            BlueprintName = "TestsHostApp"
+            ReferencedContainer = "container:BitmovinGoogleDAIPlayerTests.xcodeproj">
          </BuildableReference>
       </BuildableProductRunnable>
    </LaunchAction>
@@ -62,10 +75,10 @@
          runnableDebuggingMode = "0">
          <BuildableReference
             BuildableIdentifier = "primary"
-            BlueprintIdentifier = "65A3F28D2ED87D5200789365"
-            BuildableName = "BitmovinGoogleDAIPlayerExample.app"
-            BlueprintName = "BitmovinGoogleDAIPlayerExample"
-            ReferencedContainer = "container:BitmovinGoogleDAIPlayerExample.xcodeproj">
+            BlueprintIdentifier = "3764A0B03021DA8200567BD4"
+            BuildableName = "TestsHostApp.app"
+            BlueprintName = "TestsHostApp"
+            ReferencedContainer = "container:BitmovinGoogleDAIPlayerTests.xcodeproj">
          </BuildableReference>
       </BuildableProductRunnable>
    </ProfileAction>

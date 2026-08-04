@@ -122,6 +122,35 @@ guard player.googleDai.isEnabled else {
 
 When Google DAI is unavailable, accessing the namespace logs a warning and subsequent calls have no effect.
 
+## Running the Integration Tests
+
+The integration tests are located in [`BitmovinGoogleDAIPlayerTests`](BitmovinGoogleDAIPlayerTests). They use [Swift Testing](https://developer.apple.com/xcode/swift-testing/) (`@Suite`, `@Test`, and `#expect`) together with our [`PlayerTesting`](https://github.com/bitmovin/player-ios-testing-framework) framework for Player expectations.
+
+### Requirements
+
+- Xcode with an iOS or tvOS simulator, or a physical device
+- A Bitmovin Player license key (for physical device execution)
+  - The `com.bitmovin.player.integrations.google.dai.tests.host` bundle identifier allowlisted for that license when running on a physical device; simulator runs use `localhost`
+- A local development team selected for the `TestsHostApp` target when code signing is required for a physical device
+
+The Google DAI test asset and network code are configured in [`PlayerTesting+GoogleDai.swift`](BitmovinGoogleDAIPlayerTests/BitmovinGoogleDAIPlayerIntegrationTests/helper/PlayerTesting+GoogleDai.swift).
+The advertising tests use a longer timeout because Google DAI does not emit ad breaks at deterministic times.
+
+### Configure the License
+
+Replace `YOUR-LICENSE-KEY` in [`TestConfiguration.swift`](BitmovinGoogleDAIPlayerTests/BitmovinGoogleDAIPlayerIntegrationTests/helper/TestConfiguration.swift) with the license key used for testing. 
+
+### Run the Tests
+
+1. Open `BitmovinGoogleDAIPlayer.xcworkspace` in Xcode and allow Swift Package Manager to resolve the dependencies.
+2. Select the `BitmovinGoogleDAIPlayerIntegrationTests` scheme.
+3. Select the simulator or physical device on which to run the tests.
+4. Run the full suite with **Product > Test** or `Command-U`, or run an individual Swift Testing suite or test from
+   Xcode's Test navigator.
+
+The selected scheme builds and launches `TestsHostApp` automatically. Keep the host application running until the
+test execution completes, particularly while waiting for advertising lifecycle events.
+
 ## Sample App
 
 The [`BitmovinGoogleDAIPlayerExample`](BitmovinGoogleDAIPlayerExample) directory contains a minimal SwiftUI example. Configure it with your own Bitmovin Player license key and Google DAI stream values before running it.
