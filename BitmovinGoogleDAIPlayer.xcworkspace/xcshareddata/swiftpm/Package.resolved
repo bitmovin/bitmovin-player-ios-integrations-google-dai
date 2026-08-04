@@ -1,5 +1,5 @@
 {
-  "originHash" : "067b126acb33044e433a4642ecf3009f7519e5e26c542c76d2fef4f6a1db4702",
+  "originHash" : "644ac3c9c14ca946f56e3544e640817d6de4cc19f8dac722a5cd5b24865578f8",
   "pins" : [
     {
       "identity" : "bitmovin-analytics-collector-ios",
@@ -8,6 +8,15 @@
       "state" : {
         "revision" : "923da68514a3195a9053a1c5ce87296f86d78aca",
         "version" : "3.26.1"
+      }
+    },
+    {
+      "identity" : "ohhttpstubs",
+      "kind" : "remoteSourceControl",
+      "location" : "https://github.com/AliSoftware/OHHTTPStubs",
+      "state" : {
+        "revision" : "12f19662426d0434d6c330c6974d53e2eb10ecd9",
+        "version" : "9.1.0"
       }
     },
     {
@@ -26,6 +35,15 @@
       "state" : {
         "revision" : "1602e49c0b2d47ee19f9539397a135b290d3ebc5",
         "version" : "3.119.0"
+      }
+    },
+    {
+      "identity" : "player-ios-testing-framework",
+      "kind" : "remoteSourceControl",
+      "location" : "https://github.com/bitmovin/player-ios-testing-framework",
+      "state" : {
+        "revision" : "1e355181534a15b3207bc34376f67335c73010e9",
+        "version" : "2.5.0"
       }
     },
     {

@@ -7,6 +7,7 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		3764A0C63021DAE500567BD4 /* PlayerTesting in Frameworks */ = {isa = PBXBuildFile; productRef = 3764A0C53021DAE500567BD4 /* PlayerTesting */; };
 		3764A0C73021DAE500567BD4 /* BitmovinGoogleDAIPlayer in Frameworks */ = {isa = PBXBuildFile; productRef = 3764A0C83021DAE500567BD4 /* BitmovinGoogleDAIPlayer */; };
 		3764A0CA3021DAE500567BD4 /* BitmovinPlayer in Frameworks */ = {isa = PBXBuildFile; productRef = 3764A0C93021DAE500567BD4 /* BitmovinPlayer */; };
 /* End PBXBuildFile section */
@@ -45,6 +46,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				3764A0C73021DAE500567BD4 /* BitmovinGoogleDAIPlayer in Frameworks */,
+				3764A0C63021DAE500567BD4 /* PlayerTesting in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -99,6 +101,7 @@
 			name = BitmovinGoogleDAIPlayerIntegrationTests;
 			packageProductDependencies = (
 				3764A0C83021DAE500567BD4 /* BitmovinGoogleDAIPlayer */,
+				3764A0C53021DAE500567BD4 /* PlayerTesting */,
 			);
 			productName = BitmovinGoogleDAIPlayerIntegrationTests;
 			productReference = 3764A0A53021DA6B00567BD4 /* BitmovinGoogleDAIPlayerIntegrationTests.xctest */;
@@ -156,6 +159,7 @@
 			mainGroup = 3764A09A3021DA4500567BD4;
 			minimizedProjectReferenceProxies = 1;
 			packageReferences = (
+				3764A0C43021DAE400567BD4 /* XCRemoteSwiftPackageReference "player-ios-testing-framework" */,
 			);
 			preferredProjectObjectVersion = 77;
 			productRefGroup = 3764A0A63021DA6B00567BD4 /* Products */;
@@ -597,9 +601,22 @@
 /* End XCConfigurationList section */
 
 /* Begin XCRemoteSwiftPackageReference section */
+		3764A0C43021DAE400567BD4 /* XCRemoteSwiftPackageReference "player-ios-testing-framework" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/bitmovin/player-ios-testing-framework";
+			requirement = {
+				kind = exactVersion;
+				version = 2.5.0;
+			};
+		};
 /* End XCRemoteSwiftPackageReference section */
 
 /* Begin XCSwiftPackageProductDependency section */
+		3764A0C53021DAE500567BD4 /* PlayerTesting */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 3764A0C43021DAE400567BD4 /* XCRemoteSwiftPackageReference "player-ios-testing-framework" */;
+			productName = PlayerTesting;
+		};
 		3764A0C83021DAE500567BD4 /* BitmovinGoogleDAIPlayer */ = {
 			isa = XCSwiftPackageProductDependency;
 			productName = BitmovinGoogleDAIPlayer;
