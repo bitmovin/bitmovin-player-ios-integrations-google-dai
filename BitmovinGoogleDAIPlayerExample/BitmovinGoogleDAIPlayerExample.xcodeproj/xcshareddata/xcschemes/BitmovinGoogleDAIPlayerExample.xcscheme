@@ -17,6 +17,7 @@
                BuildableIdentifier = "primary"
                BlueprintIdentifier = "65A3F28D2ED87D5200789365"
                BuildableName = "BitmovinGoogleDAIPlayerExample.app"
+               BlueprintName = "BitmovinGoogleDAIPlayerExample"
                ReferencedContainer = "container:BitmovinGoogleDAIPlayerExample.xcodeproj">
             </BuildableReference>
          </BuildActionEntry>
@@ -46,6 +47,7 @@
             BuildableIdentifier = "primary"
             BlueprintIdentifier = "65A3F28D2ED87D5200789365"
             BuildableName = "BitmovinGoogleDAIPlayerExample.app"
+            BlueprintName = "BitmovinGoogleDAIPlayerExample"
             ReferencedContainer = "container:BitmovinGoogleDAIPlayerExample.xcodeproj">
          </BuildableReference>
       </BuildableProductRunnable>
@@ -62,6 +64,7 @@
             BuildableIdentifier = "primary"
             BlueprintIdentifier = "65A3F28D2ED87D5200789365"
             BuildableName = "BitmovinGoogleDAIPlayerExample.app"
+            BlueprintName = "BitmovinGoogleDAIPlayerExample"
             ReferencedContainer = "container:BitmovinGoogleDAIPlayerExample.xcodeproj">
          </BuildableReference>
       </BuildableProductRunnable>
