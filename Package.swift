@@ -18,8 +18,8 @@ let package = Package(
     ],
     dependencies: [
         .package(url: "https://github.com/bitmovin/player-ios.git", from: "3.119.0"),
-        .package(url: "https://github.com/googleads/swift-package-manager-google-interactive-media-ads-ios", exact: "3.31.0"),
-        .package(url: "https://github.com/googleads/swift-package-manager-google-interactive-media-ads-tvos", exact: "4.16.0")
+        .package(url: "https://github.com/googleads/swift-package-manager-google-interactive-media-ads-ios", from: "3.26.1"),
+        .package(url: "https://github.com/googleads/swift-package-manager-google-interactive-media-ads-tvos", from: "4.15.1")
     ],
     targets: [
         // Targets are the basic building blocks of a package, defining a module or a test suite.
