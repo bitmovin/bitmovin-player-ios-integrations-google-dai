@@ -19,6 +19,6 @@ Pod::Spec.new do |s|
   s.source_files = 'BitmovinGoogleDAIPlayer/Sources/BitmovinGoogleDAIPlayer/**/*.swift'
 
   s.dependency 'BitmovinPlayer', '~> 3.119'
-  s.ios.dependency 'GoogleAds-IMA-iOS-SDK', '3.31.0'
-  s.tvos.dependency 'GoogleAds-IMA-tvOS-SDK', '4.16.0'
+  s.ios.dependency 'GoogleAds-IMA-iOS-SDK', '>= 3.26.1'
+  s.tvos.dependency 'GoogleAds-IMA-tvOS-SDK', '>= 4.15.1'
 end
