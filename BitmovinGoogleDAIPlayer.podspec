@@ -1,6 +1,6 @@
 Pod::Spec.new do |s|
   s.name = 'BitmovinGoogleDAIPlayer'
-  s.version = '0.2.0-a.1'
+  s.version = '0.2.0'
   s.summary = 'Google DAI integration for the Bitmovin Player iOS SDK'
   s.description = 'Enables Google Dynamic Ad Insertion with the Bitmovin Player iOS SDK.'
   s.homepage = 'https://github.com/bitmovin/bitmovin-player-ios-integrations-google-dai'

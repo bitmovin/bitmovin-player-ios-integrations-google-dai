@@ -5,7 +5,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/)
 and this project adheres to [Semantic Versioning](https://semver.org/).
 
 
-## [Unreleased]
+## [0.2.0] - 2026-08-13
 
 ### Added
 - CocoaPods support for better React Native integration
